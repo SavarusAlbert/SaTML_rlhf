@@ -1,35 +1,23 @@
 from augments import get_args
-from model import LlamaModel, iFlytekSparkModel, ChatGLMModel
+from trl import AutoModelForCausalLMWithValueHead
+from transformers import AutoTokenizer
 from utils import prepare_data
+from trainer import PPOPipeline
+
 
 def main():
     args = get_args()
 
-    if args.llama_model_path:
-        model = LlamaModel(model_path=args.llama_model_path)
-    elif args.iflytekspark_model_path:
-        model = iFlytekSparkModel()
-    elif args.chatglm_model_path:
-        model = ChatGLMModel()
-    else:
-        raise ValueError("Please specify a model path.")
-    
-    if args.checkpoint_path:
-        model.load_state_dict()
-    
-    if args.do_train:
-        model.train()
-    elif args.do_eval:
-        model.eval()
-    elif args.do_predict:
-        model.predict()
-    else:
-        raise ValueError("Please specify an operation.")
-    
-    train_ds, valid_ds, test_ds = prepare_data(args)
+    model = AutoModelForCausalLMWithValueHead.from_pretrained(args.llama_model_path)
+    tokenizer = AutoTokenizer.from_pretrained(args.llama_model_path)
+    reward_model = None
 
-    
+    train_ds, test_ds = prepare_data(args)
+    data_collator = lambda x: x
 
+    trainer = PPOPipeline(model, reward_model, tokenizer, data_collator, train_ds)
+
+    trainer.train()
 
 
 if __name__ == '__main__':

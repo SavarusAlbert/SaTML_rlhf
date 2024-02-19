@@ -1,7 +1,5 @@
 import torch
-from transformers import AutoTokenizer
-from trl import PPOTrainer, PPOConfig, AutoModelForCausalLMWithValueHead, create_reference_model
-from trl.core import respond_to_batch
+from trl import PPOTrainer, PPOConfig, create_reference_model
 from tqdm import tqdm
 
 
@@ -26,7 +24,7 @@ class PPOPipeline:
             dataset=self.dataset
             )
     
-    def train(self, data_path):
+    def train(self):
         for epoch, batch in tqdm(enumerate(self.ppo_trainer.dataloader)):
             if epoch >= self.ppo_config.total_ppo_epochs:
                 break

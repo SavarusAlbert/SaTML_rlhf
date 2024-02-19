@@ -16,4 +16,7 @@ def write_json(path, data):
 
 
 def prepare_data(args):
-    pass
+    train_ds = read_json(args.train_data_path)
+    test_ds = read_json(args.eval_data_path)
+    
+    return train_ds, test_ds
